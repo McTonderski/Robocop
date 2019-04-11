@@ -20,10 +20,10 @@ height = 400 / 20
 size = 20
 speed = 100
 score = 0
-rd = 0 #round
+rd = 0  # round
 
 
-def savescore(score):
+def save_score(score):
     file = open("stats", "a")
     file.write(score)
     return
@@ -36,17 +36,15 @@ def game():
     window2.configure(bg='Light blue')
     window2.geometry('600x450+200+200')
 
-    text1 = Label(window2, text = 'Player', bg = 'Light Blue')
-    text1.grid(column = 0, row = 0)
+    text1 = Label(window2, text='Player', bg='Light Blue')
+    text1.grid(column=0, row=0)
 
-    text2 = Label(window2, text = '  Computer', bg = 'Light Blue')
-    text2.grid(column = 6, row = 0)
+    text2 = Label(window2, text='  Computer', bg='Light Blue')
+    text2.grid(column=6, row=0)
 
     canvas = tk.Canvas(window2, width='400', height='400')
     canvas.configure(bg='light blue')
-    canvas.grid(column = 1, columnspan = 4 , row = 1, rowspan = 10)
-
-
+    canvas.grid(column=1, columnspan=4, row=1, rowspan=10)
 
     # create area
     class area():
@@ -67,7 +65,7 @@ def game():
             canvas.create_rectangle(0, 380, 20, 400, fill='light yellow')
 
     # create robot
-    class robot():
+    class Robot():
         def __init__(self, hp, x, y, color, visible_player):
             self.width = int(width)
             self.height = int(height)
@@ -75,8 +73,8 @@ def game():
             self.body = [x, y]  # initial cords of body
             self.size = size
             self.hp = hp
-            self.Robot = False #visible robot on map
-            self.visible_Player = bool(visible_player) #robot players or computer
+            self.Robot = False  # visible robot on map
+            self.visible_Player = bool(visible_player)  # robot players or computer
             self.color = color
             self.damage = 0
             self.killed_enemies = 0
@@ -85,15 +83,15 @@ def game():
             self.hp_text = Label(window2, text='HP: ', bg='light blue')
             self.damage_text = Label(window2, text=('Damage:', str(self.damage)), bg='Light blue')
             if self.visible_Player == True:
-                self.hp_text.configure(text = ('HP:', str(self.hp)))
+                self.hp_text.configure(text=('HP:', str(self.hp)))
                 self.hp_text.grid(column=0, row=1)
                 self.damage_text.grid(column=0, row=2)
             elif self.visible_Player == False:
-                self.hp_text.configure(text = ('HP:', str(self.hp)))
+                self.hp_text.configure(text=('HP:', str(self.hp)))
                 self.hp_text.grid(column=6, row=1)
                 self.damage_text.grid(column=6, row=2)
 
-        #create stopwatch
+        # create stopwatch
         def update_time(self):
             self.DTime = Label(window2, text='00', bg='Light blue')
             self.DTime.grid(column=3, row=0)
@@ -112,7 +110,7 @@ def game():
             self.DTime['text'] = Time
             window2.after(1000, self.update_time)
 
-        #round of the game - it changes when 5 enemies die
+        # round of the game - it changes when 5 enemies die
         def rd(self):
             global rd
             text3 = Label(window2, text=('Round:', rd), bg='light blue')
@@ -124,7 +122,7 @@ def game():
                 print('else')
                 window2.after(1000, self.rd)
 
-        #score receive by player
+        # score receive by player
         def Score(self):
             self.scr = Label(window2, text=('Score:', score), bg='Light Blue')
             self.scr.grid(column=0, row=3)
@@ -143,27 +141,27 @@ def game():
             if self.hp > 0:
                 canvas.delete(self.Hp)
                 self.Hp = canvas.create_text((self.body[0] + 10, self.body[1] + 10), text=self.hp)
-            elif self.hp <= 0 and self.visible_Player == False:
+            elif self.hp <= 0 and not self.visible_Player:
                 canvas.delete(self.robot, self.Hp)
                 self.new_robot(100, (rn.randint(1, 19) * size), (rn.randint(1, 19) * size))
                 self.killed_enemies += 1
             elif self.hp <= 0:
                 canvas.delete(self.robot, self.Hp)
                 canvas.delete('all')
-                savescore(score)
-                end = Label(window2, text = 'Game Over', bg = 'light blue')
-                end.grid(column = 1, columnspan = 4, row = 1, rowspan = 10)
+                global score
+                save_score(score)
+                end = Label(window2, text='Game Over', bg='light blue')
+                end.grid(column=1, columnspan=4, row=1, rowspan=10)
             print(self.killed_enemies)
-
 
         def drawRobot(self):
             if self.hp > 0:
-                if self.Robot == False:  # visible a robot
+                if not self.Robot:  # visible a robot
                     self.robot = canvas.create_rectangle(self.body[0], self.body[1], self.body[0] + size,
                                                          self.body[1] + size, fill=self.color)
                     self.Hp = canvas.create_text((self.body[0] + 10, self.body[1] + 10), text=self.hp)
                     self.Robot = True
-                elif self.Robot == True:
+                elif self.Robot:
                     canvas.delete(self.robot, self.Hp)
                     self.robot = canvas.create_rectangle(self.body[0], self.body[1], self.body[0] + size,
                                                          self.body[1] + size, fill=self.color)
@@ -179,14 +177,16 @@ def game():
             self.body[1] = self.body[1] + (self.vector_move[1] * size)
             self.drawRobot()
 
-        #create new robot when copmuter die
+        # create new robot when copmuter die
         def new_robot(self, hp, x, y):
             if self.hp <= 0:
                 self.Robot = False
                 self.hp = hp
                 self.body = [x, y]
                 self.drawRobot()
+
         # change initial vector
+
         def move_up(self):
             if self.body[1] > 0:
                 self.vector_move = [0, -1]
@@ -211,16 +211,16 @@ def game():
             else:
                 self.vector_move = [0, 0]
 
-    class enemy(robot):
+    class Enemy(Robot):
         def changeX(self):
             move = rn.randint(-1, 1)
-            if self.body[0]==379 or self.body[0] == 1:
+            if self.body[0] == 379 or self.body[0] == 1:
                 move = 0
             return move
 
         def changeY(self):
             move = rn.randint(-1, 1)
-            if self.body[1]==379 or self.body[0] == 1:
+            if self.body[1] == 379 or self.body[1] == 1:
                 move = 0
             return move
 
@@ -230,15 +230,15 @@ def game():
             self.drawRobot()
             window2.after(1000, self.move)
 
-
-
+        def enemy_attack(self):
+            pass
 
     def Game():
         area()
         # player RObocop - ROBPL
         # computer Robocop - ROBIT
-        ROBPL = robot(100, 0, 0, 'Blue', True)
-        ROBIT = enemy(100, (rn.randint(1, 19) * size), (rn.randint(1, 19) * size), 'Red', False)
+        ROBPL = Robot(100, 0, 0, 'Blue', True)
+        ROBIT = Enemy(100, (rn.randint(1, 19) * size), (rn.randint(1, 19) * size), 'Red', False)
         ROBPL.draw_Stat()
         ROBIT.draw_Stat()
 
@@ -282,7 +282,6 @@ def game():
                 global score
                 score = score + 10
 
-
         # set keybord
         window2.after(speed, move)
         window2.bind_all("<KeyPress-Left>", moveLeft)
@@ -290,10 +289,10 @@ def game():
         window2.bind_all("<KeyPress-Up>", moveUp)
         window2.bind_all("<KeyPress-Down>", moveDown)
 
-
     if __name__ == '__main__':
         Game()
     window2.mainloop()
+
 
 def restore():
     file = open("history.ini", "r+")
@@ -307,20 +306,21 @@ def restore():
 def menu():
     text = Label(window, text='Robocop', fg='Black', bg='Light blue')
     text.config(font=('Courier', 80))
-    text.grid(row=0, column=0, padx=140, pady=40)
+    text.grid(row=0, column=0, padx=100, pady=40)
 
     fight = Button(window, text='Fight', fg='Black', bg='Light blue', width=34, command=lambda: game())
     fight.grid(row=1, column=0)
-    restoreButton = Button(window, text="Restore", fg="black",bg='Light blue', width=34, command = restore)
+    restoreButton = Button(window, text="Restore", fg="black", bg='Light blue', width=34, command=restore)
     restoreButton.grid(row=2, column=0)
+
 
 menu()
 
-#sztuczna inteligencja
-#robot pojawia sie i porusza w kierunku gracza
-#lvl zwieksza sie poziom computera
-#rundy - konczy sie po zabiciu 5 przeciwnikow
-#po 3 rundach jest boss 3Xstaty zwyklego IT
+# sztuczna inteligencja
+# robot pojawia sie i porusza w kierunku gracza
+# lvl zwieksza sie poziom computera
+# rundy - konczy sie po zabiciu 5 przeciwnikow
+# po 3 rundach jest boss 3Xstaty zwyklego IT
 
 
 window.mainloop()
