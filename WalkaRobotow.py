@@ -22,6 +22,13 @@ speed = 100
 score = 0
 rd = 0 #round
 
+
+def savescore(score):
+    file = open("stats", "a")
+    file.write(score)
+    return
+
+
 def game():
     window.destroy()
     window2 = tk.Tk()
@@ -38,6 +45,8 @@ def game():
     canvas = tk.Canvas(window2, width='400', height='400')
     canvas.configure(bg='light blue')
     canvas.grid(column = 1, columnspan = 4 , row = 1, rowspan = 10)
+
+
 
     # create area
     class area():
@@ -62,7 +71,7 @@ def game():
         def __init__(self, hp, x, y, color, visible_player):
             self.width = int(width)
             self.height = int(height)
-            self.verctor_move = [1, 0]  # initial vector
+            self.vector_move = [1, 0]  # initial vector
             self.body = [x, y]  # initial cords of body
             self.size = size
             self.hp = hp
@@ -139,6 +148,7 @@ def game():
             elif self.hp <= 0:
                 canvas.delete(self.robot, self.Hp)
                 canvas.delete('all')
+                savescore(score)
                 end = Label(window2, text = 'Game Over', bg = 'light blue')
                 end.grid(column = 1, columnspan = 4, row = 1, rowspan = 10)
             print(self.killed_enemies)
@@ -163,8 +173,8 @@ def game():
                 canvas.delete(self.robot, self.Hp)
 
         def move(self):
-            self.body[0] = self.body[0] + (self.verctor_move[0] * size)
-            self.body[1] = self.body[1] + (self.verctor_move[1] * size)
+            self.body[0] = self.body[0] + (self.vector_move[0] * size)
+            self.body[1] = self.body[1] + (self.vector_move[1] * size)
             self.drawRobot()
 
         #create new robot when copmuter die
@@ -177,34 +187,56 @@ def game():
         # change initial vector
         def move_up(self):
             if self.body[1] > 0:
-                self.verctor_move = [0, -1]
+                self.vector_move = [0, -1]
             else:
-                self.verctor_move = [0, 0]
+                self.vector_move = [0, 0]
 
         def move_down(self):
             if self.body[1] < 380:
-                self.verctor_move = [0, 1]
+                self.vector_move = [0, 1]
             else:
-                self.verctor_move = [0, 0]
+                self.vector_move = [0, 0]
 
         def move_right(self):
             if self.body[0] < 380:
-                self.verctor_move = [1, 0]
+                self.vector_move = [1, 0]
             else:
-                self.verctor_move = [0, 0]
+                self.vector_move = [0, 0]
 
         def move_left(self):
             if self.body[0] > 0:
-                self.verctor_move = [-1, 0]
+                self.vector_move = [-1, 0]
             else:
-                self.verctor_move = [0, 0]
+                self.vector_move = [0, 0]
+
+    class enemy(robot):
+        def changeX(self):
+            move = rn.randint(-1, 1)
+            if self.body[0]==379 or self.body[0] == 1:
+                move = 0
+            return move
+
+        def changeY(self):
+            move = rn.randint(-1, 1)
+            if self.body[1]==379 or self.body[0] == 1:
+                move = 0
+            return move
+
+        def move(self):
+            self.body[0] = self.body[0] + (self.changeX() * size)
+            self.body[1] = self.body[1] + (self.changeY() * size)
+            self.drawRobot()
+            window2.after(1000, self.move)
+
+
+
 
     def Game():
         area()
         # player RObocop - ROBPL
         # computer Robocop - ROBIT
         ROBPL = robot(100, 0, 0, 'Blue', True)
-        ROBIT = robot(100, (rn.randint(1, 19) * size), (rn.randint(1, 19) * size), 'Red', False)
+        ROBIT = enemy(100, (rn.randint(1, 19) * size), (rn.randint(1, 19) * size), 'Red', False)
         ROBPL.draw_Stat()
         ROBIT.draw_Stat()
 
@@ -261,6 +293,13 @@ def game():
         Game()
     window2.mainloop()
 
+def restore():
+    file = open("history.ini", "r+")
+    file = file.read()
+    global score
+    score = int(file)
+    game()
+
 
 # make a Menu
 def menu():
@@ -268,9 +307,10 @@ def menu():
     text.config(font=('Courier', 80))
     text.grid(row=0, column=0, padx=140, pady=40)
 
-    fight = Button(window, text='Fight', fg='Black', bg='Light blue', width=34, command=game)
+    fight = Button(window, text='Fight', fg='Black', bg='Light blue', width=34, command=lambda: game())
     fight.grid(row=1, column=0)
-
+    restoreButton = Button(window, text="Restore", fg="black",bg='Light blue', width=34, command = restore)
+    restoreButton.grid(row=2, column=0)
 
 menu()
 
