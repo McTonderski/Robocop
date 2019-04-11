@@ -102,6 +102,8 @@ def game():
             min = koniec.tm_min - self.start.tm_min
             if min < 10:
                 if sec < 10:
+                    if sec < 0:
+                        sec = 0
                     Time = '0', min, ':', '0', sec
                 else:
                     Time = '0', min, ':', sec
